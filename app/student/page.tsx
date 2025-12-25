@@ -3,6 +3,7 @@
 import { useAuth } from '@/lib/auth/context';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import PackageList from '@/components/student/PackageList';
 
 export default function StudentDashboard() {
   const { user, userProfile, loading, signOut } = useAuth();
@@ -51,45 +52,47 @@ export default function StudentDashboard() {
       </nav>
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
+        <div className="px-4 py-6 sm:px-0 space-y-6">
+          {/* Welcome Section */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
               Welcome, {userProfile.first_name}!
             </h2>
-            <p className="text-gray-600 mb-6">
-              Your student portal is being built. Soon you&apos;ll be able to view your packages, attendance history, and check in to classes.
+            <p className="text-gray-600">
+              Track your class packages and check your attendance history.
             </p>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-              <div className="bg-indigo-50 p-6 rounded-lg border-2 border-indigo-100">
-                <h3 className="font-semibold text-lg mb-2 text-indigo-900">
-                  My Packages
-                </h3>
-                <p className="text-indigo-700 text-sm">
-                  View your active class packages and remaining credits
-                </p>
-                <p className="text-xs text-gray-500 mt-2">Coming soon...</p>
-              </div>
+          {/* My Packages */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">My Packages</h2>
+            <PackageList />
+          </div>
 
-              <div className="bg-purple-50 p-6 rounded-lg border-2 border-purple-100">
-                <h3 className="font-semibold text-lg mb-2 text-purple-900">
-                  Attendance History
-                </h3>
-                <p className="text-purple-700 text-sm">
-                  See all the classes you&apos;ve attended
-                </p>
-                <p className="text-xs text-gray-500 mt-2">Coming soon...</p>
-              </div>
+          {/* Coming Soon Features */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Coming Soon</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-              <div className="bg-pink-50 p-6 rounded-lg border-2 border-pink-100">
-                <h3 className="font-semibold text-lg mb-2 text-pink-900">
-                  Upcoming Classes
-                </h3>
-                <p className="text-pink-700 text-sm">
-                  View the class schedule and check in
-                </p>
-                <p className="text-xs text-gray-500 mt-2">Coming soon...</p>
-              </div>
+                <div className="bg-purple-50 p-6 rounded-lg border-2 border-purple-100">
+                  <h3 className="font-semibold text-lg mb-2 text-purple-900">
+                    Attendance History
+                  </h3>
+                  <p className="text-purple-700 text-sm">
+                    See all the classes you&apos;ve attended
+                  </p>
+                  <p className="text-xs text-gray-500 mt-2">Coming soon...</p>
+                </div>
+
+                <div className="bg-pink-50 p-6 rounded-lg border-2 border-pink-100">
+                  <h3 className="font-semibold text-lg mb-2 text-pink-900">
+                    Upcoming Classes
+                  </h3>
+                  <p className="text-pink-700 text-sm">
+                    View the class schedule and check in
+                  </p>
+                  <p className="text-xs text-gray-500 mt-2">Coming soon...</p>
+                </div>
 
               <div className="bg-blue-50 p-6 rounded-lg border-2 border-blue-100">
                 <h3 className="font-semibold text-lg mb-2 text-blue-900">
