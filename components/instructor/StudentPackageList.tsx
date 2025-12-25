@@ -409,13 +409,29 @@ export default function StudentPackageList({
                                     {getPackageStatus(pkg)}
                                   </span>
                                   <button
-                                    onClick={() => onEditPackage(pkg)}
+                                    onClick={() => onEditPackage({
+                                      ...pkg,
+                                      student: {
+                                        id: student.id,
+                                        first_name: student.first_name,
+                                        last_name: student.last_name,
+                                        email: student.email,
+                                      } as any
+                                    })}
                                     className="px-3 py-1 text-xs bg-indigo-50 text-indigo-700 rounded hover:bg-indigo-100"
                                   >
                                     Edit
                                   </button>
                                   <button
-                                    onClick={() => onDeletePackage(pkg)}
+                                    onClick={() => onDeletePackage({
+                                      ...pkg,
+                                      student: {
+                                        id: student.id,
+                                        first_name: student.first_name,
+                                        last_name: student.last_name,
+                                        email: student.email,
+                                      } as any
+                                    })}
                                     className="px-3 py-1 text-xs bg-red-50 text-red-700 rounded hover:bg-red-100"
                                   >
                                     Delete
