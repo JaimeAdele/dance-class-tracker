@@ -274,66 +274,79 @@ export default function AddPackageDialog({
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Student Selector */}
+              {/* Student Selector or Display */}
               <div>
                 <label
-                  htmlFor="student_id"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
                   Student *
                 </label>
-                <select
-                  id="student_id"
-                  value={formData.student_id}
-                  onChange={(e) =>
-                    setFormData({ ...formData, student_id: e.target.value })
-                  }
-                  disabled={!!packageToEdit}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                >
-                  <option value="">Select a student...</option>
-                  {students.map((student) => (
-                    <option key={student.id} value={student.id}>
-                      {student.last_name}, {student.first_name} ({student.email})
-                    </option>
-                  ))}
-                </select>
-                {students.length === 0 && (
-                  <p className="mt-1 text-sm text-gray-500">
-                    No students found. Create student accounts first.
-                  </p>
+                {packageToEdit ? (
+                  <div className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-900">
+                    {packageToEdit.student?.first_name} {packageToEdit.student?.last_name}
+                    {packageToEdit.student?.email && ` (${packageToEdit.student.email})`}
+                  </div>
+                ) : (
+                  <>
+                    <select
+                      id="student_id"
+                      value={formData.student_id}
+                      onChange={(e) =>
+                        setFormData({ ...formData, student_id: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                    >
+                      <option value="">Select a student...</option>
+                      {students.map((student) => (
+                        <option key={student.id} value={student.id}>
+                          {student.last_name}, {student.first_name} ({student.email})
+                        </option>
+                      ))}
+                    </select>
+                    {students.length === 0 && (
+                      <p className="mt-1 text-sm text-gray-500">
+                        No students found. Create student accounts first.
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
 
-              {/* Package Type Selector */}
+              {/* Package Type Selector or Display */}
               <div>
                 <label
-                  htmlFor="package_type_id"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
                   Package Type *
                 </label>
-                <select
-                  id="package_type_id"
-                  value={formData.package_type_id}
-                  onChange={(e) =>
-                    setFormData({ ...formData, package_type_id: e.target.value })
-                  }
-                  disabled={!!packageToEdit}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                >
-                  <option value="">Select a package type...</option>
-                  {packageTypes.map((packageType) => (
-                    <option key={packageType.id} value={packageType.id}>
-                      {packageType.name} - {formatCurrency(packageType.price)}
-                      {packageType.class_count && ` (${packageType.class_count} classes)`}
-                    </option>
-                  ))}
-                </select>
-                {packageTypes.length === 0 && (
-                  <p className="mt-1 text-sm text-gray-500">
-                    No active package types found. Create package types first.
-                  </p>
+                {packageToEdit ? (
+                  <div className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-900">
+                    {packageToEdit.package_type?.name}
+                  </div>
+                ) : (
+                  <>
+                    <select
+                      id="package_type_id"
+                      value={formData.package_type_id}
+                      onChange={(e) =>
+                        setFormData({ ...formData, package_type_id: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                    >
+                      <option value="">Select a package type...</option>
+                      {packageTypes.map((packageType) => (
+                        <option key={packageType.id} value={packageType.id}>
+                          {packageType.name} - {formatCurrency(packageType.price)}
+                          {packageType.class_count && ` (${packageType.class_count} classes)`}
+                        </option>
+                      ))}
+                    </select>
+                    {packageTypes.length === 0 && (
+                      <p className="mt-1 text-sm text-gray-500">
+                        No active package types found. Create package types first.
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
 

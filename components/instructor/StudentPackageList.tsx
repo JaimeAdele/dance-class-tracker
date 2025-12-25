@@ -13,12 +13,14 @@ interface StudentWithPackages extends User {
 interface StudentPackageListProps {
   onAddPackage: (studentId?: string) => void;
   onEditPackage: (pkg: PackageWithType) => void;
+  onDeletePackage: (pkg: PackageWithType) => void;
   refreshTrigger?: number;
 }
 
 export default function StudentPackageList({
   onAddPackage,
   onEditPackage,
+  onDeletePackage,
   refreshTrigger,
 }: StudentPackageListProps) {
   const { userProfile } = useAuth();
@@ -394,7 +396,7 @@ export default function StudentPackageList({
                                     )}
                                   </p>
                                 </div>
-                                <div className="flex space-x-2">
+                                <div className="flex items-center space-x-2">
                                   <span
                                     className={`px-2 py-1 text-xs font-medium rounded ${
                                       getPackageStatus(pkg) === 'active'
@@ -411,6 +413,12 @@ export default function StudentPackageList({
                                     className="px-3 py-1 text-xs bg-indigo-50 text-indigo-700 rounded hover:bg-indigo-100"
                                   >
                                     Edit
+                                  </button>
+                                  <button
+                                    onClick={() => onDeletePackage(pkg)}
+                                    className="px-3 py-1 text-xs bg-red-50 text-red-700 rounded hover:bg-red-100"
+                                  >
+                                    Delete
                                   </button>
                                 </div>
                               </div>

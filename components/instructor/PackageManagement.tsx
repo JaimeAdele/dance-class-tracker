@@ -1,11 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { supabase } from '@/lib/supabase/client';
+import { useAuth } from '@/lib/auth/context';
 import AddPackageDialog from './AddPackageDialog';
 import StudentPackageList from './StudentPackageList';
 import type { PackageWithType } from '@/types';
 
 export default function PackageManagement() {
+  const { userProfile } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [packageToEdit, setPackageToEdit] = useState<PackageWithType | null>(null);
@@ -18,6 +21,42 @@ export default function PackageManagement() {
   const handleEditPackage = (pkg: PackageWithType) => {
     setPackageToEdit(pkg);
     setIsDialogOpen(true);
+  };
+
+  const handleDeletePackage = async (pkg: PackageWithType) => {
+    const confirmMessage = `Are you sure you want to delete this package?\n\n` +
+      `Student: ${pkg.student?.first_name} ${pkg.student?.last_name}\n` +
+      `Package: ${pkg.package_type?.name}\n` +
+      `Classes Remaining: ${pkg.classes_remaining || 0}\n\n` +
+      `This action cannot be undone.`;
+
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    if (!userProfile?.business_id) {
+      alert('Unable to determine business context');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('packages')
+        .delete()
+        .eq('id', pkg.id)
+        .eq('business_id', userProfile.business_id);
+
+      if (error) {
+        console.error('Failed to delete package:', error);
+        alert('Failed to delete package. Please try again.');
+        return;
+      }
+
+      setRefreshTrigger((prev) => prev + 1);
+    } catch (err) {
+      console.error('Error deleting package:', err);
+      alert('An error occurred while deleting the package.');
+    }
   };
 
   const handleDialogClose = () => {
@@ -52,6 +91,7 @@ export default function PackageManagement() {
       <StudentPackageList
         onAddPackage={handleAddPackage}
         onEditPackage={handleEditPackage}
+        onDeletePackage={handleDeletePackage}
         refreshTrigger={refreshTrigger}
       />
 
