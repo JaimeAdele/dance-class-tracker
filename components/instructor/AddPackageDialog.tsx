@@ -4,18 +4,20 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/lib/auth/context';
 import { formatCurrency } from '@/lib/utils';
-import type { PackageType, User, PaymentMethod } from '@/types';
+import type { PackageType, User, PaymentMethod, PackageWithType } from '@/types';
 
 interface AddPackageDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  packageToEdit?: PackageWithType | null;
 }
 
 export default function AddPackageDialog({
   isOpen,
   onClose,
   onSuccess,
+  packageToEdit,
 }: AddPackageDialogProps) {
   const { userProfile } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -32,6 +34,8 @@ export default function AddPackageDialog({
     amount_paid: '',
     payment_id: '',
     purchase_date: new Date().toISOString().split('T')[0],
+    classes_remaining: '',
+    expiration_date: '',
   });
 
   // Fetch students and package types
@@ -77,9 +81,40 @@ export default function AddPackageDialog({
     setLoadingData(false);
   };
 
-  // Auto-fill amount when package type is selected
+  // Load package data when editing
   useEffect(() => {
-    if (formData.package_type_id) {
+    if (packageToEdit) {
+      setFormData({
+        student_id: packageToEdit.student_id,
+        package_type_id: packageToEdit.package_type_id,
+        payment_method: packageToEdit.payment_method,
+        amount_paid: packageToEdit.amount_paid.toString(),
+        payment_id: packageToEdit.payment_id || '',
+        purchase_date: packageToEdit.purchase_date.split('T')[0],
+        classes_remaining: packageToEdit.classes_remaining?.toString() || '',
+        expiration_date: packageToEdit.expiration_date
+          ? packageToEdit.expiration_date.split('T')[0]
+          : '',
+      });
+    } else {
+      // Reset form for new package
+      setFormData({
+        student_id: '',
+        package_type_id: '',
+        payment_method: 'cash',
+        amount_paid: '',
+        payment_id: '',
+        purchase_date: new Date().toISOString().split('T')[0],
+        classes_remaining: '',
+        expiration_date: '',
+      });
+    }
+    setError('');
+  }, [packageToEdit, isOpen]);
+
+  // Auto-fill amount when package type is selected (only for new packages)
+  useEffect(() => {
+    if (!packageToEdit && formData.package_type_id) {
       const selectedPackage = packageTypes.find(
         (pt) => pt.id === formData.package_type_id
       );
@@ -90,7 +125,7 @@ export default function AddPackageDialog({
         }));
       }
     }
-  }, [formData.package_type_id, packageTypes]);
+  }, [formData.package_type_id, packageTypes, packageToEdit]);
 
   const validateForm = (): boolean => {
     if (!formData.student_id) {
@@ -132,35 +167,64 @@ export default function AddPackageDialog({
     setLoading(true);
 
     try {
-      const packageType = packageTypes.find((pt) => pt.id === formData.package_type_id);
-      if (!packageType) {
-        throw new Error('Package type not found');
+      if (packageToEdit) {
+        // Update existing package
+        const updateData: any = {
+          payment_method: formData.payment_method,
+          amount_paid: parseFloat(formData.amount_paid),
+          payment_id: formData.payment_id.trim() || null,
+          purchase_date: new Date(formData.purchase_date).toISOString(),
+        };
+
+        // Only update classes_remaining if it was provided
+        if (formData.classes_remaining) {
+          updateData.classes_remaining = parseInt(formData.classes_remaining);
+        }
+
+        // Only update expiration_date if it was provided
+        if (formData.expiration_date) {
+          updateData.expiration_date = new Date(formData.expiration_date).toISOString();
+        }
+
+        const { error: updateError } = await supabase
+          .from('packages')
+          .update(updateData)
+          .eq('id', packageToEdit.id)
+          .eq('business_id', userProfile.business_id);
+
+        if (updateError) throw updateError;
+      } else {
+        // Create new package
+        const packageType = packageTypes.find((pt) => pt.id === formData.package_type_id);
+        if (!packageType) {
+          throw new Error('Package type not found');
+        }
+
+        // Calculate expiration date
+        const purchaseDate = new Date(formData.purchase_date);
+        const expirationDate = packageType.expiration_days
+          ? new Date(
+              purchaseDate.getTime() + packageType.expiration_days * 24 * 60 * 60 * 1000
+            )
+          : null;
+
+        // Create package record
+        const { error: insertError } = await supabase.from('packages').insert({
+          student_id: formData.student_id,
+          package_type_id: formData.package_type_id,
+          business_id: userProfile.business_id,
+          classes_remaining: packageType.class_count,
+          total_classes: packageType.class_count,
+          purchase_date: purchaseDate.toISOString(),
+          expiration_date: expirationDate?.toISOString() || null,
+          status: 'active',
+          payment_method: formData.payment_method,
+          amount_paid: parseFloat(formData.amount_paid),
+          payment_id: formData.payment_id.trim() || null,
+        });
+
+        if (insertError) throw insertError;
       }
-
-      // Calculate expiration date
-      const purchaseDate = new Date(formData.purchase_date);
-      const expirationDate = packageType.expiration_days
-        ? new Date(
-            purchaseDate.getTime() + packageType.expiration_days * 24 * 60 * 60 * 1000
-          )
-        : null;
-
-      // Create package record
-      const { error: insertError } = await supabase.from('packages').insert({
-        student_id: formData.student_id,
-        package_type_id: formData.package_type_id,
-        business_id: userProfile.business_id,
-        classes_remaining: packageType.class_count,
-        total_classes: packageType.class_count,
-        purchase_date: purchaseDate.toISOString(),
-        expiration_date: expirationDate?.toISOString() || null,
-        status: 'active',
-        payment_method: formData.payment_method,
-        amount_paid: parseFloat(formData.amount_paid),
-        payment_id: formData.payment_id.trim() || null,
-      });
-
-      if (insertError) throw insertError;
 
       // Reset form
       setFormData({
@@ -170,13 +234,15 @@ export default function AddPackageDialog({
         amount_paid: '',
         payment_id: '',
         purchase_date: new Date().toISOString().split('T')[0],
+        classes_remaining: '',
+        expiration_date: '',
       });
 
       onSuccess();
       onClose();
     } catch (err: any) {
-      console.error('Error creating package:', err);
-      setError(err.message || 'Failed to create package');
+      console.error('Error saving package:', err);
+      setError(err.message || 'Failed to save package');
     } finally {
       setLoading(false);
     }
@@ -193,7 +259,7 @@ export default function AddPackageDialog({
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            Assign Package to Student
+            {packageToEdit ? 'Edit Package' : 'Assign Package to Student'}
           </h2>
 
           {error && (
@@ -222,7 +288,8 @@ export default function AddPackageDialog({
                   onChange={(e) =>
                     setFormData({ ...formData, student_id: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                  disabled={!!packageToEdit}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed"
                 >
                   <option value="">Select a student...</option>
                   {students.map((student) => (
@@ -252,7 +319,8 @@ export default function AddPackageDialog({
                   onChange={(e) =>
                     setFormData({ ...formData, package_type_id: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                  disabled={!!packageToEdit}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed"
                 >
                   <option value="">Select a package type...</option>
                   {packageTypes.map((packageType) => (
@@ -394,6 +462,57 @@ export default function AddPackageDialog({
                 />
               </div>
 
+              {/* Edit-only fields */}
+              {packageToEdit && (
+                <>
+                  {/* Classes Remaining */}
+                  <div>
+                    <label
+                      htmlFor="classes_remaining"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Classes Remaining
+                    </label>
+                    <input
+                      type="number"
+                      id="classes_remaining"
+                      value={formData.classes_remaining}
+                      onChange={(e) =>
+                        setFormData({ ...formData, classes_remaining: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                      placeholder="Leave empty to keep current value"
+                      min="0"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Adjust classes remaining for this package
+                    </p>
+                  </div>
+
+                  {/* Expiration Date */}
+                  <div>
+                    <label
+                      htmlFor="expiration_date"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Expiration Date
+                    </label>
+                    <input
+                      type="date"
+                      id="expiration_date"
+                      value={formData.expiration_date}
+                      onChange={(e) =>
+                        setFormData({ ...formData, expiration_date: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Leave empty to keep current expiration date
+                    </p>
+                  </div>
+                </>
+              )}
+
               {/* Form Actions */}
               <div className="flex justify-end space-x-3 pt-4 border-t">
                 <button
@@ -406,10 +525,16 @@ export default function AddPackageDialog({
                 </button>
                 <button
                   type="submit"
-                  disabled={loading || students.length === 0 || packageTypes.length === 0}
+                  disabled={loading || (!packageToEdit && (students.length === 0 || packageTypes.length === 0))}
                   className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? 'Assigning...' : 'Assign Package'}
+                  {loading
+                    ? packageToEdit
+                      ? 'Updating...'
+                      : 'Assigning...'
+                    : packageToEdit
+                    ? 'Update Package'
+                    : 'Assign Package'}
                 </button>
               </div>
             </form>

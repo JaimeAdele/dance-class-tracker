@@ -3,17 +3,26 @@
 import { useState } from 'react';
 import AddPackageDialog from './AddPackageDialog';
 import StudentPackageList from './StudentPackageList';
+import type { PackageWithType } from '@/types';
 
 export default function PackageManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [packageToEdit, setPackageToEdit] = useState<PackageWithType | null>(null);
 
   const handleAddPackage = () => {
+    setPackageToEdit(null);
+    setIsDialogOpen(true);
+  };
+
+  const handleEditPackage = (pkg: PackageWithType) => {
+    setPackageToEdit(pkg);
     setIsDialogOpen(true);
   };
 
   const handleDialogClose = () => {
     setIsDialogOpen(false);
+    setPackageToEdit(null);
   };
 
   const handleSuccess = () => {
@@ -42,14 +51,16 @@ export default function PackageManagement() {
       {/* Students List with Packages */}
       <StudentPackageList
         onAddPackage={handleAddPackage}
+        onEditPackage={handleEditPackage}
         refreshTrigger={refreshTrigger}
       />
 
-      {/* Add Package Dialog */}
+      {/* Add/Edit Package Dialog */}
       <AddPackageDialog
         isOpen={isDialogOpen}
         onClose={handleDialogClose}
         onSuccess={handleSuccess}
+        packageToEdit={packageToEdit}
       />
     </div>
   );

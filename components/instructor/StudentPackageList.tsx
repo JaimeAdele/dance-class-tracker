@@ -12,17 +12,20 @@ interface StudentWithPackages extends User {
 
 interface StudentPackageListProps {
   onAddPackage: (studentId?: string) => void;
+  onEditPackage: (pkg: PackageWithType) => void;
   refreshTrigger?: number;
 }
 
 export default function StudentPackageList({
   onAddPackage,
+  onEditPackage,
   refreshTrigger,
 }: StudentPackageListProps) {
   const { userProfile } = useAuth();
   const [students, setStudents] = useState<StudentWithPackages[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'active' | 'low' | 'expiring'>('all');
+  const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
 
   useEffect(() => {
     fetchStudentsWithPackages();
@@ -296,41 +299,127 @@ export default function StudentPackageList({
                 const activePackagesCount = student.packages.filter(
                   (pkg) => getPackageStatus(pkg) === 'active'
                 ).length;
+                const isExpanded = expandedStudent === student.id;
 
                 return (
-                  <tr key={student.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex flex-col">
-                        <div className="text-sm font-medium text-gray-900">
-                          {student.first_name} {student.last_name}
+                  <>
+                    <tr key={student.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() =>
+                              setExpandedStudent(isExpanded ? null : student.id)
+                            }
+                            className="text-gray-400 hover:text-gray-600"
+                          >
+                            <svg
+                              className={`w-5 h-5 transition-transform ${
+                                isExpanded ? 'rotate-90' : ''
+                              }`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 5l7 7-7 7"
+                              />
+                            </svg>
+                          </button>
+                          <div className="flex flex-col">
+                            <div className="text-sm font-medium text-gray-900">
+                              {student.first_name} {student.last_name}
+                            </div>
+                            <div className="text-sm text-gray-500">{student.email}</div>
+                          </div>
                         </div>
-                        <div className="text-sm text-gray-500">{student.email}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900">
-                        {activePackagesCount}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`text-sm font-medium ${getStatusColor(student)}`}>
-                        {getTotalClassesRemaining(student)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900">
-                        {getExpirationStatus(student)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                      <button
-                        onClick={() => onAddPackage(student.id)}
-                        className="text-indigo-600 hover:text-indigo-900 font-medium"
-                      >
-                        Add Package
-                      </button>
-                    </td>
-                  </tr>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm text-gray-900">
+                          {activePackagesCount}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`text-sm font-medium ${getStatusColor(student)}`}>
+                          {getTotalClassesRemaining(student)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm text-gray-900">
+                          {getExpirationStatus(student)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                        <button
+                          onClick={() => onAddPackage(student.id)}
+                          className="text-indigo-600 hover:text-indigo-900 font-medium"
+                        >
+                          Add Package
+                        </button>
+                      </td>
+                    </tr>
+                    {isExpanded && student.packages.length > 0 && (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-4 bg-gray-50">
+                          <div className="space-y-2">
+                            <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                              All Packages
+                            </h4>
+                            {student.packages.map((pkg) => (
+                              <div
+                                key={pkg.id}
+                                className="flex items-center justify-between bg-white p-3 rounded border border-gray-200"
+                              >
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium text-gray-900">
+                                    {pkg.package_type?.name || 'Unknown'}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {pkg.classes_remaining !== null && (
+                                      <span className="mr-4">
+                                        {pkg.classes_remaining} of {pkg.total_classes}{' '}
+                                        classes remaining
+                                      </span>
+                                    )}
+                                    {pkg.package_type?.package_structure === 'unlimited' && (
+                                      <span className="mr-4">Unlimited</span>
+                                    )}
+                                    {pkg.expiration_date && (
+                                      <span>
+                                        Expires:{' '}
+                                        {new Date(pkg.expiration_date).toLocaleDateString()}
+                                      </span>
+                                    )}
+                                  </p>
+                                </div>
+                                <div className="flex space-x-2">
+                                  <span
+                                    className={`px-2 py-1 text-xs font-medium rounded ${
+                                      getPackageStatus(pkg) === 'active'
+                                        ? 'bg-green-100 text-green-800'
+                                        : getPackageStatus(pkg) === 'expired'
+                                        ? 'bg-yellow-100 text-yellow-800'
+                                        : 'bg-gray-100 text-gray-800'
+                                    }`}
+                                  >
+                                    {getPackageStatus(pkg)}
+                                  </span>
+                                  <button
+                                    onClick={() => onEditPackage(pkg)}
+                                    className="px-3 py-1 text-xs bg-indigo-50 text-indigo-700 rounded hover:bg-indigo-100"
+                                  >
+                                    Edit
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
                 );
               })}
             </tbody>
