@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth/context';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import PackageTypeManagement from '@/components/instructor/PackageTypeManagement';
+import PackageManagement from '@/components/instructor/PackageManagement';
 
 export default function InstructorDashboard() {
   const { user, userProfile, loading, signOut } = useAuth();
@@ -70,6 +71,9 @@ export default function InstructorDashboard() {
 
           {/* Package Type Management */}
           <PackageTypeManagement />
+
+          {/* Package Management */}
+          <PackageManagement />
 
           {/* Coming Soon Features */}
           <div className="bg-white rounded-lg shadow p-6">
