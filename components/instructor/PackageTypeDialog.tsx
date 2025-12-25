@@ -126,8 +126,7 @@ export default function PackageTypeDialog({
 
     setLoading(true);
 
-    const packageTypeData = {
-      business_id: userProfile.business_id,
+    const basePackageData = {
       name: formData.name.trim(),
       package_structure: formData.package_structure,
       class_count: formData.package_structure === 'fixed_count' ? parseInt(formData.class_count) : null,
@@ -141,19 +140,22 @@ export default function PackageTypeDialog({
 
     try {
       if (packageType) {
-        // Update existing package type
+        // Update existing package type (no business_id in update data)
         const { error: updateError } = await supabase
           .from('package_types')
-          .update(packageTypeData)
+          .update(basePackageData)
           .eq('id', packageType.id)
           .eq('business_id', userProfile.business_id);
 
         if (updateError) throw updateError;
       } else {
-        // Create new package type
+        // Create new package type (include business_id for insert)
         const { error: insertError } = await supabase
           .from('package_types')
-          .insert(packageTypeData);
+          .insert({
+            ...basePackageData,
+            business_id: userProfile.business_id,
+          });
 
         if (insertError) throw insertError;
       }
