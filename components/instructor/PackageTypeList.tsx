@@ -41,8 +41,8 @@ export default function PackageTypeList({
       }
     }
 
-    const { error } = await supabase
-      .from('package_types')
+    const { error } = await (supabase
+      .from('package_types') as any)
       .update({ is_active: newActiveStatus })
       .eq('id', packageType.id)
       .eq('business_id', userProfile.business_id);

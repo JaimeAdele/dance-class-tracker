@@ -104,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!authData.user) throw new Error('No user returned from signup');
 
       // Create user profile
-      const { error: profileError } = await supabase.from('users').insert({
+      const { error: profileError } = await (supabase.from('users') as any).insert({
         id: authData.user.id,
         email,
         business_id: '00000000-0000-0000-0000-000000000001', // Prisma Dance Studio ID

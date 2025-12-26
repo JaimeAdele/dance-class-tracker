@@ -186,8 +186,7 @@ export default function AddPackageDialog({
           updateData.expiration_date = new Date(formData.expiration_date).toISOString();
         }
 
-        const { error: updateError } = await supabase
-          .from('packages')
+        const { error: updateError } = await (supabase.from('packages') as any)
           .update(updateData)
           .eq('id', packageToEdit.id)
           .eq('business_id', userProfile.business_id);
@@ -209,7 +208,7 @@ export default function AddPackageDialog({
           : null;
 
         // Create package record
-        const { error: insertError } = await supabase.from('packages').insert({
+        const { error: insertError } = await (supabase.from('packages') as any).insert({
           student_id: formData.student_id,
           package_type_id: formData.package_type_id,
           business_id: userProfile.business_id,

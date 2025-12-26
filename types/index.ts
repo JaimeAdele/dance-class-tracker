@@ -1,6 +1,9 @@
 // Application-level types
 import type { Database } from './database';
 
+// Export Database type
+export type { Database };
+
 // Convenience type aliases
 export type Business = Database['public']['Tables']['businesses']['Row'];
 export type User = Database['public']['Tables']['users']['Row'];

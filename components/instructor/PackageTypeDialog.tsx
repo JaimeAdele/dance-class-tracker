@@ -141,8 +141,8 @@ export default function PackageTypeDialog({
     try {
       if (packageType) {
         // Update existing package type (no business_id in update data)
-        const { error: updateError } = await supabase
-          .from('package_types')
+        const { error: updateError } = await (supabase
+          .from('package_types') as any)
           .update(basePackageData)
           .eq('id', packageType.id)
           .eq('business_id', userProfile.business_id);
@@ -150,8 +150,8 @@ export default function PackageTypeDialog({
         if (updateError) throw updateError;
       } else {
         // Create new package type (include business_id for insert)
-        const { error: insertError } = await supabase
-          .from('package_types')
+        const { error: insertError } = await (supabase
+          .from('package_types') as any)
           .insert({
             ...basePackageData,
             business_id: userProfile.business_id,
