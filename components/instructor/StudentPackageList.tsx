@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/lib/auth/context';
 import { formatCurrency } from '@/lib/utils';
@@ -304,7 +304,7 @@ export default function StudentPackageList({
                 const isExpanded = expandedStudent === student.id;
 
                 return (
-                  <>
+                  <React.Fragment key={student.id}>
                     <tr key={student.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center space-x-2">
@@ -443,7 +443,7 @@ export default function StudentPackageList({
                         </td>
                       </tr>
                     )}
-                  </>
+                  </React.Fragment>
                 );
               })}
             </tbody>
