@@ -57,16 +57,23 @@ export default function StudentManagement() {
     }
 
     try {
-      // Delete user (cascades to packages and attendance via database constraints)
-      const { error } = await supabase
-        .from('users')
-        .delete()
-        .eq('id', student.id)
-        .eq('business_id', userProfile.business_id);
+      // Call API route to delete user (deletes from auth and database)
+      const response = await fetch('/api/admin/delete-student', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          studentId: student.id,
+          businessId: userProfile.business_id,
+        }),
+      });
 
-      if (error) {
-        console.error('Failed to delete student:', error);
-        alert('Failed to delete student. Please try again.');
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('Failed to delete student:', data.error);
+        alert(`Failed to delete student: ${data.error}`);
         return;
       }
 
