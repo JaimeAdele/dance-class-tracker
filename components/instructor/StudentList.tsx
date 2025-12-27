@@ -133,7 +133,7 @@ export default function StudentList({
             placeholder="Search by name or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700"
           />
         </div>
 
@@ -142,7 +142,7 @@ export default function StudentList({
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'name' | 'created')}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700"
           >
             <option value="name">Sort by Name</option>
             <option value="created">Sort by Date Added</option>
