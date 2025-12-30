@@ -258,14 +258,15 @@ CREATE POLICY "System can manage package month activations"
   ON package_month_activations FOR ALL
   USING (business_id IN (SELECT business_id FROM users WHERE id = auth.uid()));
 
--- Class Types: All users can view, owners can modify
+-- Class Types: All users can view, instructors/owners can modify
 CREATE POLICY "Users can view class types in their business"
   ON class_types FOR SELECT
   USING (business_id IN (SELECT business_id FROM users WHERE id = auth.uid()));
 
-CREATE POLICY "Owners can manage class types"
+CREATE POLICY "Instructors and owners can manage class types"
   ON class_types FOR ALL
-  USING (business_id IN (SELECT business_id FROM users WHERE id = auth.uid() AND role = 'owner'));
+  USING (business_id IN (SELECT business_id FROM users WHERE id = auth.uid() AND role IN ('owner', 'instructor')))
+  WITH CHECK (business_id IN (SELECT business_id FROM users WHERE id = auth.uid() AND role IN ('owner', 'instructor')));
 
 -- Recurring Schedules: All users can view, instructors/owners can modify
 CREATE POLICY "Users can view recurring schedules in their business"
