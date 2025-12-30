@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import PackageTypeManagement from '@/components/instructor/PackageTypeManagement';
 import PackageManagement from '@/components/instructor/PackageManagement';
 import StudentManagement from '@/components/instructor/StudentManagement';
+import ClassTypeManagement from '@/components/instructor/ClassTypeManagement';
 
 export default function InstructorDashboard() {
   const { user, userProfile, loading, signOut } = useAuth();
@@ -79,6 +80,9 @@ export default function InstructorDashboard() {
           {/* Student Management */}
           <StudentManagement />
 
+          {/* Class Type Management */}
+          <ClassTypeManagement />
+
           {/* Coming Soon Features */}
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Coming Soon</h3>
@@ -100,7 +104,7 @@ export default function InstructorDashboard() {
                 <p className="text-blue-700 text-sm">
                   Create recurring and one-time classes
                 </p>
-                <p className="text-xs text-gray-500 mt-2">Coming soon...</p>
+                <p className="text-xs text-gray-500 mt-2">In progress...</p>
               </div>
 
               <div className="bg-green-50 p-6 rounded-lg border-2 border-green-100">
