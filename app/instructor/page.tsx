@@ -8,6 +8,7 @@ import PackageManagement from '@/components/instructor/PackageManagement';
 import StudentManagement from '@/components/instructor/StudentManagement';
 import ClassTypeManagement from '@/components/instructor/ClassTypeManagement';
 import RecurringScheduleManagement from '@/components/instructor/RecurringScheduleManagement';
+import OneTimeClassManagement from '@/components/instructor/OneTimeClassManagement';
 
 export default function InstructorDashboard() {
   const { user, userProfile, loading, signOut } = useAuth();
@@ -86,6 +87,9 @@ export default function InstructorDashboard() {
 
           {/* Recurring Schedule Management */}
           <RecurringScheduleManagement />
+
+          {/* One-Time Class Management */}
+          <OneTimeClassManagement />
 
           {/* Coming Soon Features */}
           <div className="bg-white rounded-lg shadow p-6">
