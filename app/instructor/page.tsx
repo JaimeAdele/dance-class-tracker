@@ -10,6 +10,7 @@ import ClassTypeManagement from '@/components/instructor/ClassTypeManagement';
 import RecurringScheduleManagement from '@/components/instructor/RecurringScheduleManagement';
 import OneTimeClassManagement from '@/components/instructor/OneTimeClassManagement';
 import AttendanceMarking from '@/components/instructor/AttendanceMarking';
+import AttendanceHistory from '@/components/instructor/AttendanceHistory';
 
 export default function InstructorDashboard() {
   const { user, userProfile, loading, signOut } = useAuth();
@@ -94,6 +95,9 @@ export default function InstructorDashboard() {
 
           {/* One-Time Class Management */}
           <OneTimeClassManagement />
+
+          {/* Attendance History */}
+          <AttendanceHistory />
 
           {/* Coming Soon Features */}
           <div className="bg-white rounded-lg shadow p-6">
