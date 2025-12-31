@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth/context';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import PackageList from '@/components/student/PackageList';
+import UpcomingClasses from '@/components/student/UpcomingClasses';
 
 export default function StudentDashboard() {
   const { user, userProfile, loading, signOut } = useAuth();
@@ -59,9 +60,12 @@ export default function StudentDashboard() {
               Welcome, {userProfile.first_name}!
             </h2>
             <p className="text-gray-600">
-              Track your class packages and check your attendance history.
+              View your upcoming classes, check in, and manage your packages.
             </p>
           </div>
+
+          {/* Upcoming Classes & Self Check-In */}
+          <UpcomingClasses />
 
           {/* My Packages */}
           <div className="bg-white rounded-lg shadow p-6">
@@ -72,36 +76,25 @@ export default function StudentDashboard() {
           {/* Coming Soon Features */}
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Coming Soon</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                <div className="bg-purple-50 p-6 rounded-lg border-2 border-purple-100">
-                  <h3 className="font-semibold text-lg mb-2 text-purple-900">
-                    Attendance History
-                  </h3>
-                  <p className="text-purple-700 text-sm">
-                    See all the classes you&apos;ve attended
-                  </p>
-                  <p className="text-xs text-gray-500 mt-2">Coming soon...</p>
-                </div>
-
-                <div className="bg-pink-50 p-6 rounded-lg border-2 border-pink-100">
-                  <h3 className="font-semibold text-lg mb-2 text-pink-900">
-                    Upcoming Classes
-                  </h3>
-                  <p className="text-pink-700 text-sm">
-                    View the class schedule and check in
-                  </p>
-                  <p className="text-xs text-gray-500 mt-2">Coming soon...</p>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-purple-50 p-6 rounded-lg border-2 border-purple-100">
+                <h3 className="font-semibold text-lg mb-2 text-purple-900">
+                  Attendance History
+                </h3>
+                <p className="text-purple-700 text-sm">
+                  See all the classes you&apos;ve attended
+                </p>
+                <p className="text-xs text-gray-500 mt-2">Coming soon...</p>
+              </div>
 
               <div className="bg-blue-50 p-6 rounded-lg border-2 border-blue-100">
                 <h3 className="font-semibold text-lg mb-2 text-blue-900">
-                  Self Check-In
+                  Purchase Packages
                 </h3>
                 <p className="text-blue-700 text-sm">
-                  Check yourself in starting 1 hour before class
+                  Buy new class packages online
                 </p>
-                <p className="text-xs text-gray-500 mt-2">Coming soon...</p>
+                <p className="text-xs text-gray-500 mt-2">Coming in Phase 2...</p>
               </div>
             </div>
           </div>
