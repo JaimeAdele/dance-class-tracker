@@ -65,7 +65,11 @@ export default function RecurringScheduleList({ schedules, onEdit, onRefresh }: 
 
   const formatDate = (date: string | null) => {
     if (!date) return 'Ongoing';
-    return new Date(date).toLocaleDateString();
+    // Parse date string directly to avoid timezone issues
+    // Date is in YYYY-MM-DD format, so we split and create a date in local timezone
+    const [year, month, day] = date.split('-').map(Number);
+    const localDate = new Date(year, month - 1, day);
+    return localDate.toLocaleDateString();
   };
 
   if (schedules.length === 0) {
