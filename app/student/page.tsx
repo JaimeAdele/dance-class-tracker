@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import PackageList from '@/components/student/PackageList';
 import UpcomingClasses from '@/components/student/UpcomingClasses';
+import AttendanceHistory from '@/components/student/AttendanceHistory';
 
 export default function StudentDashboard() {
   const { user, userProfile, loading, signOut } = useAuth();
@@ -73,20 +74,13 @@ export default function StudentDashboard() {
             <PackageList />
           </div>
 
+          {/* Attendance History */}
+          <AttendanceHistory />
+
           {/* Coming Soon Features */}
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Coming Soon</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-purple-50 p-6 rounded-lg border-2 border-purple-100">
-                <h3 className="font-semibold text-lg mb-2 text-purple-900">
-                  Attendance History
-                </h3>
-                <p className="text-purple-700 text-sm">
-                  See all the classes you&apos;ve attended
-                </p>
-                <p className="text-xs text-gray-500 mt-2">Coming soon...</p>
-              </div>
-
               <div className="bg-blue-50 p-6 rounded-lg border-2 border-blue-100">
                 <h3 className="font-semibold text-lg mb-2 text-blue-900">
                   Purchase Packages
@@ -95,6 +89,16 @@ export default function StudentDashboard() {
                   Buy new class packages online
                 </p>
                 <p className="text-xs text-gray-500 mt-2">Coming in Phase 2...</p>
+              </div>
+
+              <div className="bg-green-50 p-6 rounded-lg border-2 border-green-100">
+                <h3 className="font-semibold text-lg mb-2 text-green-900">
+                  Calendar View
+                </h3>
+                <p className="text-green-700 text-sm">
+                  See all classes in a calendar format
+                </p>
+                <p className="text-xs text-gray-500 mt-2">Coming soon...</p>
               </div>
             </div>
           </div>
